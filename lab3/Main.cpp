@@ -79,26 +79,22 @@ void init(params &myParams) {
 }
 
 int main() {
-	HANDLE hThreadMinMax;
-	DWORD IDThreadMinMax;
+	HANDLE hThread[2];
+	DWORD dwThread[2];
 
-	HANDLE hThreadAverage;
-	DWORD IDThreadAverage;
 	params myParams;
 	init(myParams);
 
 	readArray(myParams);
 				
-	hThreadMinMax = CreateThread(NULL, 0, min_maxFunc, (void*)&myParams, 0, &IDThreadMinMax);
+	hThread[0] = CreateThread(NULL, 0, min_maxFunc, (void*)&myParams, 0, &dwThread[0]);
 
-	hThreadAverage = CreateThread(NULL, 0, averageFunc, (void*)&myParams, 0, &IDThreadAverage);
+	hThread[1] = CreateThread(NULL, 0, averageFunc, (void*)&myParams, 0, &dwThread[1]);
 
-	WaitForSingleObject(hThreadMinMax, INFINITE);
-	WaitForSingleObject(hThreadAverage, INFINITE);
-	TerminateThread(hThreadAverage, 0);
-	TerminateThread(hThreadMinMax, 0);
-	CloseHandle(hThreadAverage);
-	CloseHandle(hThreadMinMax);
+	WaitForMultipleObjects(2, hThread, TRUE, INFINITE);
+	
+	CloseHandle(hThread[0]);
+	CloseHandle(hThread[1]);
 
 	replaceMinAndMaxWithAverage(myParams);
 	printArray(myParams);
